@@ -1,0 +1,16 @@
+{
+  "title": "Guia de Instalação do OpenCore",
+  "description": "macOS em máquinas não Apple",
+  "pages": [
+    "---Introdução---",
+    "index",
+    "hardware-limitations",
+    "finding-your-hardware",
+    "terminology",
+    "why-oc",
+    "---Criação do USB---",
+    "usb-creation"
+  ],
+  "root": true,
+  "icon": "FaApple"
+}

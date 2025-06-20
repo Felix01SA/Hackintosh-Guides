@@ -1,0 +1,51 @@
+---
+title: Getting started
+description: Before we can jump head first into making an OpenCore based system, we need to go over a few things.
+full: true
+icon: Power
+---
+
+## Prerequisites
+
+1. Time and patience.
+   - Don't start working on this if you have deadlines or important work. Hackintoshes are not something you should be relying on as a work machine.
+2. Know your hardware.
+   - Your CPU name and its generation.
+   - Your GPU
+   - Your storage device (HDD/SSD, NVMe/AHCI/RAID/IDE configuration)
+   - your laptop/desktop model if from an OEM
+   - Your **Ethernet chipset**
+   - Your WLAN/Bluetooth chipset
+3. A basic knowledge of command lines and how to use terminal/command prompt.
+   - This is not crucial, this is the basis of this whole guide. We can't help you if you don't know to `cd` to a directory or delete a file.
+4. A machine that is compatible as seen in the [compatibility](/guides/hardware-limitations) section.
+5. A minimum of:
+   - 16GB USB if you're going to use macOS to create the USB installer.
+   - 4GB USB if you're going to use Windows or Linux for creating the USB installer.
+6. An **Ethernet connection** and you must know your LAN card's model
+
+   <Callout type="warn">
+     No WIFI dongles, Ethernet USB adapter work depending on macOS support.
+   </Callout>
+   - You must either have a physical Ethernet port, or a compatible mcaOS Ethernet
+   dongle/adapter. In case you have a [compatible WIFI card]() {/*TODO: Add link*/}
+   , you can also use that.
+   <Callout>
+     Note the majotiry of WIFI cards are not supported by macOS.
+   </Callout>
+
+   - For people who can't use Ethernet but have an Android phone, you
+     can connect your Android phone to WIFI and then tether it using USB with
+     [HoRNDIS](https://joshuawise.com/horndis#available_versions).
+
+7. **Proper OS Installation**
+   - Be it:
+     - macOS (a fairly recent one would be better)
+     - Windows (Windows 10. 1703 or newer)
+     - Linux (Clean and properly functioning, with Python 2.7 or later)
+   - For Windows and Linux users, **15GB** of free space on the drive you're working on. On Windows, your OS disk (C:) must have at least **15GB** of free space.
+   - For macOS users, **30GB** if free spcae on system's drive.
+   - Most tools used in this guide will also require [Python](https://www.python.org/downloads/) installed.
+8. Latest **BIOS** installed
+   - In most cases, updation your Bios will provide the best support of macOS
+   - The exception to this are `MSI 500-series` AMD motherboards, read more at [Motherboard Support](/guides/hardware-limitations#motherboard-support).

@@ -1,0 +1,6 @@
+{
+  "title": "Criando o USB",
+  "defaultOpen": false,
+  "icon": "Usb",
+  "pages": ["macos", "windows", "linux"]
+}

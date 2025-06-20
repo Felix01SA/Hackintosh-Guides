@@ -1,0 +1,53 @@
+---
+title: Começando
+description: Antes de começarmos a criar um sistema baseado em OpenCore, precisamos revisar algumas coisas.
+full: true
+icon: Power
+---
+
+## Pré-requisitos
+
+1. Tempo e paciência.
+   - Não comece a trabalhar nisso se você tiver prazos ou trabalhos importantes. Hackintoshes não são algo em que você deve confiar como máquina de trabalho.
+2. Conheça seu hardware.
+   - O nome do seu processador (CPU) e sua geração.
+   - Sua placa de vídeo (GPU)
+   - Seu dispositivo de armazenamento (configuração HDD/SSD, NVMe/AHCI/RAID/IDE)
+   - O modelo do seu notebook/desktop se for de uma OEM
+   - Seu **chipset de Ethernet**
+   - Seu chipset WLAN/Bluetooth
+3. Um conhecimento básico de linha de comando e como usar terminal/prompt de comando.
+   - Isso não é crucial, mas é a base de todo este guia. Não podemos ajudar se você não souber usar o comando `cd` para navegar em diretórios ou deletar um arquivo.
+4. Uma máquina que seja compatível conforme mostrado na seção de [compatibilidade](/guides/hardware-limitations).
+5. Um mínimo de:
+   - Pendrive de 16GB se você for usar macOS para criar o instalador USB.
+   - Pendrive de 4GB se você for usar Windows ou Linux para criar o instalador USB.
+6. Uma **conexão Ethernet** e você deve conhecer o modelo da sua placa de rede
+
+   <Callout type="warn">
+     Adaptadores WIFI USB e adaptadores Ethernet USB funcionam dependendo do
+     suporte do macOS.
+   </Callout>
+   - Você deve ter uma porta Ethernet física ou um adaptador/dongle Ethernet compatível
+   com macOS. Caso você tenha uma [placa WIFI compatível]() {/*TODO: Add link*/},
+   você também pode usar essa.
+   <Callout>
+     Note que a maioria das placas WIFI não são suportadas pelo macOS.
+   </Callout>
+
+   - Para pessoas que não podem usar Ethernet mas têm um telefone
+     Android, você pode conectar seu telefone Android ao WIFI e depois
+     compartilhar via USB usando
+     [HoRNDIS](https://joshuawise.com/horndis#available_versions).
+
+7. **Instalação adequada do Sistema Operacional**
+   - Seja ele:
+     - macOS (um relativamente recente seria melhor)
+     - Windows (Windows 10 1703 ou mais recente)
+     - Linux (Limpo e funcionando adequadamente, com Python 2.7 ou posterior)
+   - Para usuários Windows e Linux, **15GB** de espaço livre no drive em que você está trabalhando. No Windows, seu disco do sistema (C:) deve ter pelo menos **15GB** de espaço livre.
+   - Para usuários macOS, **30GB** de espaço livre no drive do sistema.
+   - A maioria das ferramentas usadas neste guia também necessitarão do [Python](https://www.python.org/downloads/) instalado.
+8. Última versão do **BIOS** instalada
+   - Na maioria dos casos, atualizar sua BIOS fornecerá o melhor suporte para macOS
+   - A exceção são as placas-mãe AMD `MSI série 500`, leia mais em [Suporte de Placas-Mãe](/guides/hardware-limitations#motherboard-support).

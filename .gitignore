@@ -1,8 +1,30 @@
-_book/
-node_modules/
-.vscode/
+# deps
+/node_modules
+
+# generated content
+.contentlayer
+.content-collections
+.source
+
+# test & build
+/coverage
+/.next/
+/out/
+/build
+*.tsbuildinfo
+
+# misc
+.trunk
 .DS_Store
-.vuepress/dist
-.vuepress/.config.js.swp
-package-lock.json
-yarn-error.log
+*.pem
+/.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# others
+.env*.local
+.vercel
+next-env.d.ts
+.vscode

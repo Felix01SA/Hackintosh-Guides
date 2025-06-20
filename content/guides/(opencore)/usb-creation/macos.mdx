@@ -1,0 +1,198 @@
+---
+title: Making the installer in macOS
+description: Creating the macOS installer in macOS.
+icon: FaApple
+---
+
+While you don't need a fresh install of macOS to use OpenCore, some users prefer having a fresh slate with their boot manager upgrades.
+
+To start we'll want to grab ourselves a copy of macOS. You can skip this and head to formatting the USB if you're just making a bootable OpenCore stick and not an installer. For everyone else, you can either download macOS from the App Store or with Munki's script.
+
+## Downloading macOS: Modern OS [#downloading-macos-modern]
+
+this method allows you to download macOS 10.13 and newer, for 10.12 and older see [Downloading macOS: Legacy OS](#downloading-macos-legacy).
+
+<Callout title='macOS 12 and above note'>
+As recent macOS versions introduce changes to the USB stack, its highly advisable that you USB ports (with USBToolBox) before installing macOS.
+  <Callout type='warn'>
+    With macOS 11.3 and newer, [XhciPortLimit is broken resulting in boot loops](https://github.com/dortania/bugtracker/issues/162). \
+    If you've already [mapped your USB ports](){/*TODO: Add link*/} and disabled `XhciPortLimit`, you can boot macOS 11.3+ without issues.
+
+  </Callout>
+</Callout>
+
+From a macOS machine that meets the requirements of the OS version you want ro install, go directly to the App Store:
+
+- [Using Apple Store](#using-app-store)
+
+For machines that need a specific OS releases or can't download from the App Store:
+
+- [Command Line Software Update utility](#command-line-software-update-utility)
+- [Munki's InstallInstallMacOS utility](#installinstallmacos-utility)
+
+### Using App Store [#using-app-store]
+
+From a macOS machine that meets the requirements of the OS version you want to install, go directly to the App Store and download the desired OS release and continue to [Setting up the installer](#setting-installer)
+
+### Command Line Software Update Utility [#command-line-software-update-utility]
+
+Open a terminal window then copy and paste the below command:
+
+```sh title="Terminal"
+softwareupdate --list-full-installers; echo; echo "Please enter version number you wish to download:"; read REPLY; [ -n "$REPLY" ] && softwareupdate --fetch-full-installer --full-installer-version "$REPLY"
+```
+
+![Command Line Software Update Utility](/usb-creation/creating-usb/commandline.macos.png)
+
+This giver you a list of available releases you can choose from. Once downloaded it will be saved in your Applications folder. You can continue to [Setting up the installer](#setting-installer).
+
+### Munki's InstallInstallMacOS utility [#installinstallmacos-utility]
+
+<Callout title='Note for users running macOS Monterey 12.3 or above'>
+  Starting from macOS Monterey 12.3, Apple removed support for `python2.7`, so without `installinstallmacos.py` will throw the following error:
+
+```plaintext
+This tool requires the Python xattr module. Perhaps run 'pip install xattr' to install it.
+```
+
+To overcome the issue, we recommend to install `Command Line Tools for Xcode` by running `xcode-select --install{:sh}` in the Terminal and then run `pip3 install xattr{:sh}`
+
+After that you can run the same command below but with `python3` instead of just `python`:
+
+```sh
+mkdir -p ~/macOS-installer && cd ~/macOS-installer && curl https://raw.githubusercontent.com/munki/macadmin-scripts/main/installinstallmacos.py > installinstallmacos.py && sudo python3 installinstallmacos.py
+```
+
+</Callout>
+
+In order to run it, just copy and paste the below command in a terminal window:
+
+```sh title="Terminal"
+mkdir -p ~/macOS-installer && cd ~/macOS-installer && curl https://raw.githubusercontent.com/munki/macadmin-scripts/main/installinstallmacos.py > installinstallmacos.py && sudo python installinstallmacos.py
+```
+
+![Munki's InstallInstallMacOS utility](/usb-creation/creating-usb/munki.macos.png)
+
+As you can see, we get a nice list of macOS installers. If you need a particular versions of macOS, you can select it by typing the number next to it. For this example we'll choose 10:
+
+![Munki's InstallInstallMacOS utility - process](/usb-creation/creating-usb/munki-process.macos.png)
+
+This is going to take a while as we're downloading the entire 8GB+ macOS installer, so it's highly recommended to read the rest of the guide while you wait.
+
+Once finished, you'll find in your `~/macOS-installer/` folder a DMG containing the macOS Installer, called `Install_macOS_<version>.dmg`. Mount it and you'll find the installer application.
+
+<Callout>
+  We recommended to remove the install macOS.app into the `/Applications`
+  folder, as we'll be executing commands from there.
+</Callout>
+<Callout>
+  Running `Cmd+Shift+G` in Finder will allow you to easily jump to
+  `~/macOS-installer`
+</Callout>
+
+![Munki's InstallInstallMacOS utility - done](/usb-creation/creating-usb/munki-done.macos.png)
+![Munki's InstallInstallMacOS utility - dmg](/usb-creation/creating-usb/munki-dmg.macos.png)
+
+From here, jump tp [Setting up the installer](#setting-installer) to finish your work. If you want to check the integrity of your download, you can check [this repository of checksums](https://github.com/notpeter/apple-installer-checksums), although do note that these are crowdsourced checksums and may not be a reliable way to check for authenticity.
+
+## Downloading macOS: Legacy OS [#downloading-macos-legacy]
+
+This method allows you to download much older version of OS X, currently supporting all Intel versions of OS X (10.4 to current).
+
+- [Legacy macOS: Offline Method](/guides/usb-creation/legacy-macos/legacy-macos-offline)
+  - 10.7 - 10.12 supported, excluding 10.9
+- [Legacy macOS: Online Method](/guides/usb-creation/legacy-macos/legacy-macos-online)
+  - 10.7 - 11 supported
+- [Legacy macOS: Disk Images](/guides/usb-creation/legacy-macos/legacy-macos-disk)
+  - 10.4 - 10.6 supported
+
+## Setting ip the installer [#setting-installer]
+
+Now we'll be formatting the USB to prep for both the macOS installer and OpenCore. We'll want to use macOS Extended (HFS+) with a GUID partition map. This will create two partitions: the main `MyVolume` and a second called `EFI` which is used as a boot partition where your firmware will check for boot files.
+
+<Callout>
+  The `EFI` partition created by formatting the USB is hidden until tou mount
+  it. This will mounted later when [Setting up OpenCore's EFI
+  environment](#setting-oc-env)
+</Callout>
+<Callout>
+  By default, Disk Utility only shows partitions - press `Cmd/Win+2` to show all
+  devices (alternatively you can press the View button)
+</Callout>
+<Callout>
+  Users following [Legacy macOS: Online
+  Method]('/guides/usb-creation/legacy-macos/legacy-mecos-online) section can
+  skip to [Setting up OpenCore's EFI environment](#setting-oc-env)
+</Callout>
+
+![Disk Utility - Erase Disk](/usb-creation/creating-usb/erase-disk.macos.png)
+
+Next run the `createinstallmedia` command provided by [Apple](https://support.apple.com/en-us/HT201372):
+
+<Callout>
+  That the command is made for USB's formatted with the name `MyVolume`
+</Callout>
+
+```sh title="Terminal"
+# replace <version> with the macOS version
+sudo /Applications/Install\ macOS\ <version>.app/Contents/Resources/createinstallmedia --volume /Volumes/MyVolume
+```
+
+<Callout title='Note for users on Apple Silicon installing macOS older than Big Sur (11.x)'>
+If the `createinstallmedia` fails with `zsh: killed` or `Killed: 9` then it's most likely an issue with the installer's code signature. To fix this, you can run the following command:
+
+```sh
+# replace <version> with the macOS version
+cd /Applications/Install\ macOS\ <version>.app/Contents/Resources/
+codesign -s - -f --deep /Applications/Install\ macOS\ <version>.app
+```
+
+You will need the command line tools for Xcode installed:
+
+```sh
+xcode-select --install
+```
+
+</Callout>
+
+This will take some time so you may want to grab a coffee or continue reading the guide (to be fair you really shouldn't be following this guide step by step without reading the whole thing first).
+
+You can also replace the `createinstallmedia` path with that of where your installer's located (same idea with the drive name).
+
+### Legacy Setup [#legacy-setup]
+
+For systems not supporting UEFI boot, see below:
+
+To start, you need the following:
+
+- `BootInstall_IA32.tool` or `BootInstall_X64.tool`
+  <Callout>
+    This can be found in OpenCorePkg under `/Utilities/LegacyBoot/`
+  </Callout>
+- Install USB (created above)
+
+Within your OpenCore build folder, navigate to `Utilities/LegacyBoot`. Here you'll find a file called `BootInstall_<arch>.tool`. What this does is install DuetPkg to your desired drive.
+
+![BootInstall.tool](/usb-creation/creating-usb/legacy-setup-bootinstall.macos.png)
+
+Now run this tool in terminal with sudo(This tool will likely fail otherwise):
+
+```sh title="Terminal"
+# Replace <arch> with the architecture of your CPU: X64 or IA32
+sudo ~/Downloads/OpenCore/Utilities/legacyBoot/BootInstall_<arch>.tool
+```
+
+![BootInstall.tool - process](/usb-creation/creating-usb/legacy-setup-boot-disk.macos.png)
+
+This will give you a list of available disks, choose yours and you will be prompted to write a new MBR. Choose yes`[y]` and you'll be finished.
+
+![BootInstall.tool - done](/usb-creation/creating-usb/legacy-setup-boot-done.macos.png)
+![BootInstall.tool - efi](/usb-creation/creating-usb/legacy-setup-efi-base.macos.png)
+
+## Setting up OpenCore's EFI environment [#setting-oc-env]
+
+Setting up OpenCore's EFI environment is simple – all you need to do is mount our EFI system partition. This is automatically made when we format with GUID but is unmounted by default, this is where our friend [MountEFI](https://github.com/corpnewt/MountEFI) comes in:
+
+![MountEFI](/usb-creation/creating-usb/oc-env-mount-efi-usb.macos.png)
+
+You'll notice that once we open the EFI partition, it's empty. This is where the fun begins.

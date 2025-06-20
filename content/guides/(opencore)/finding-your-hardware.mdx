@@ -1,0 +1,265 @@
+---
+title: Finding Your Hardware
+description: How to find the right hardware for your Hackintosh
+icon: MemoryStick
+---
+
+This section is mostly a mini-guide on how to find what hardware you're currently running; this is mainly relevant for laptop and prebuilt users as hardware specs are a bit more difficult to obtain. You can skip this page and head to [Creating the USB](){/* TODO: Add link */} if you already know what hardware you have.
+
+For this, we'll assume you have Windows or Linux installed:
+
+- [Finding Hardware using Windows](#finding-hardware-using-windows)
+- [Finding Hardware using Linux](#finding-hardware-using-linux)
+- [Finding Hardware using OCSysInfo](#finding-hardware-using-ocsysinfo)
+
+## Finding Hardware using Windows [#finding-hardware-using-windows]
+
+For this we mainly have 2 options:
+
+- Windows' built-in Device Manager
+- [AIDA64](https://www.aida64.com/downloads)
+
+Due to Easier to use GIU, we recommend downloading AIDA64 and running this ad it's much easier to grab specs. However we'll show you both methods for obtaining hardware specs.
+
+### CPU Model [#cpu-model-win]
+
+| AIDA64                                | Windows' Device Manager                       |
+| ------------------------------------- | --------------------------------------------- |
+| ![CPU](/find-hardware/cpu/aida64.png) | ![CPU](/find-hardware/cpu/device-manager.png) |
+
+### GPU Model [#gpu-model-win]
+
+| AIDA64                                | Windows' Device Manager                       |
+| ------------------------------------- | --------------------------------------------- |
+| ![CPU](/find-hardware/gpu/aida64.png) | ![CPU](/find-hardware/gpu/device-manager.png) |
+
+### Chipset Model [#chipset-model-win]
+
+| AIDA64                                    | Windows' Device Manager                           |
+| ----------------------------------------- | ------------------------------------------------- |
+| ![CPU](/find-hardware/chipset/aida64.png) | ![CPU](/find-hardware/chipset/device-manager.png) |
+
+<Callout>
+  {" "}
+  Intel SOC based CPUs will have the chipset and other featires already on the same
+  die instead of being dedicated chips. This means trying to detect the exact chipset
+  is a bit more difficult.
+</Callout>
+
+### Keyboard, Trackpad and Touchscreen Connection Type [#keyboard-trackpad-and-touchscreen-connection-type-win]
+
+| Windows' Device Manager                            |
+| -------------------------------------------------- |
+| ![CPU](/find-hardware/keyboard/device-manager.png) |
+
+AIDA64 unfortunately doesn't provide any useful info regarding pointer devices, so we recommend using DeviceManager for this.
+
+- You can find these devices under the following:
+
+  - `Human Interface Devices`
+  - `Keyboards`
+  - `Mice and other Pointer Devices`
+
+- To view the exact connection type of the device, select the pointer device then enter `View -> Device by Connection`. This will clarify whether it's over PS2, I2C, SMBus, USB, etc.
+
+Depending on the device, it may show up under multiple names and connections. The main ones to keep an eye on:
+
+<Accordions>
+  <Accordion title="SMBus">
+    These will show up as straight PCI device such as `Synaptics SMBus Diver` or
+    `ELAN SMBus Driver` - Synaptics devices will show up under both PS2 under
+    `Synaptics PS2 Device`/`Synaptics Pointing Device` and PCI as `Synaptics
+    SMBus Driver`
+
+    ![SMBus](/find-hardware/keyboard/smbus/device-manager.png)
+
+    As you can see, we get 2 Synaptics devices in the left image, however if we take a closer look we,ll see the top device is PS2, while the bottom on is SMBus. While you can use the trackpad in either mode, SMBus generally provides better gesture support and accuracy.
+
+  </Accordion>
+  <Accordion title='USB'>
+    | Device by Type                                         | Device by Connection                                         |
+    | ------------------------------------------------------ | ------------------------------------------------------------ |
+    | ![USB](/find-hardware/keyboard/usb/device-by-type.png) | ![USB](/find-hardware/keyboard/usb/device-by-connection.png) |
+
+    These will show up as a `PS2 Compliant Trackpad`, as well under USB when we switch our connection view to `Device by Connection`
+
+  </Accordion>
+  <Accordion title='I2C'>
+    ![I2C](/find-hardware/keyboard/i2c/device-manager.png)
+
+    These will almost always show up as Microsoft HID Device, though can appear as other trackpads as well. They will always show up under I2C though.
+
+  </Accordion>
+</Accordions>
+
+### Audio Codec [#audio-codec-win]
+
+| AIDA64                                    | Windows' Device Manager                           |
+| ----------------------------------------- | ------------------------------------------------- |
+| ![Audio](/find-hardware/audio/aida64.png) | ![Audio](/find-hardware/audio/device-manager.png) |
+
+Due to how certain OEMs present device names, the most accurate info you can get with DeviceManager is via the PCI ID(ie. `pci 14F1,50F4`). This means you'll need to google the ID and figure out the exact device ID, however AIDA64 can present the name properly which is quite a bit easier on the end user.
+
+### Network Controller Models [#network-controller-models-win]
+
+| AIDA64                                    | Windows' Device Manager                           |
+| ----------------------------------------- | ------------------------------------------------- |
+| ![Net](/find-hardware/network/aida64.png) | ![Net](/find-hardware/network/device-manager.png) |
+
+Due to how certain OEMs present device names, the most accurate info you can get with Device Manager is via the PCI ID (ie. `PCI\VEN_14E4&DEV_43A0` corresponds to a vendor ID of `14E4` and a device ID of `43A0`). This means you'll need to Google the ID and figure out the exact device ID; however, AIDA64 can present the name properly which can be quite a bit easier
+
+### Drive Model [#drive-model-win]
+
+| AIDA64                                    | Windows' Device Manager                           |
+| ----------------------------------------- | ------------------------------------------------- |
+| ![Drive](/find-hardware/drive/aida64.png) | ![Drive](/find-hardware/drive/device-manager.png) |
+
+Due to OEMs not not providing much details about the drive, you'll need to Google a bit which drive matches up with the displayed name.
+
+## Finding Hardware using Linux [#finding-hardware-using-linux]
+
+For finding hardware using Linux, we'll be using a few tools:
+
+- `pciutius`
+- `dmidecode`
+
+Below you'll find a list of commands to run in the terminal, thankfully most Linux distros will come with these tools already installed. If not, you will likely find them in your distro's package manager.
+
+### CPU Model [#cpu-model-linux]
+
+```sh icon="Terminal" title="Terminal"
+grep -i "model name" /proc/cpuinfo
+```
+
+### GPU Model [#gpu-model-linux]
+
+```sh icon="Terminal" title="Terminal"
+lspci | grep -i --color "vga\|3d\|2d"
+```
+
+### Chipset Model [#chipset-model-linux]
+
+```sh icon="Terminal" title="Terminal"
+dmidecode -t baseboard
+```
+
+### Keyboard, Trackpad and Touchscreen Connection Type [#keyboard-trackpad-and-touchscreen-connection-type-linux]
+
+```sh icon="Terminal" title="Terminal"
+dmesg | grep -i input
+```
+
+### Audio Codec [#audio-codec-linux]
+
+```sh icon="Terminal" title="Terminal"
+aplay -l
+```
+
+### Network Controller models [#network-controller-models-linux]
+
+Basic info:
+
+```sh icon="Terminal" title="Terminal"
+lspci | grep -i network
+```
+
+More in-depth info:
+
+```sh icon="Terminal" title="Terminal"
+lshw -class network
+```
+
+### Drive Model [#drive-model-linux]
+
+```sh icon="Terminal" title="Terminal"
+lshw -class disk -class storage
+```
+
+## Finding Hardware using OCSysInfo [#finding-hardware-using-ocsysinfo]
+
+There are 2 methods of obtaining and running OCSysInfo:
+
+- [Precompiled binaries](https://github.com/KernelWanderers/OCSysInfo/releases)
+- Manually cloning the [repository](https://github.com/KernelWanderers/OCSysInfo)
+
+<Callout title='TIP'>
+We recommend you download [the binaries](https://github.com/KernelWanderers/OCSysInfo/releases), as it is the simplest and easiest method.
+
+If you want to learn more about manually cloning the repository, you can check out the OCSysInfo [mini-guide](https://github.com/KernelWanderers/OCSysInfo/tree/main/mini-guide).
+
+</Callout>
+
+### Discovering Hardware [#discovering-hardware-ocsysinfo]
+
+<Callout type="warn">
+  Laptop users: before we start, we advise you to disconnect any external USB
+  devices, as this may lead to ambiguous or unnecessary information collected
+  which may confuse you.
+</Callout>
+
+After you've successfully installed and ran the application, you should be greeted with the following screen:
+
+![OCSysInfo](/find-hardware/ocsysinfo/example-1.png)
+
+From here, you can type in `d` and press `ENTER`/`RETURN`, after, you should be greeted with a similar-looking screen:
+
+![OCSysInfo](/find-hardware/ocsysinfo/example-2.png)
+
+### CPU Model [#cpu-model-ocsysinfo]
+
+![OCSysInfo](/find-hardware/ocsysinfo/cpu.png)
+
+Besides the CPU model, it also lists the CPU's codename, highest SSE version supported and SSSE3 availability.
+
+### GPU Model [#gpu-model-ocsysinfo]
+
+![OCSysInfo](/find-hardware/ocsysinfo/gpu.png)
+
+In this case, the machine has two GPUs:
+
+- iGPU (Intel UHD Graphics 630)
+- dGPU (AMD Radeon R9 390X)
+
+Besides the model names, it also lists the GPUs' codename, ACPI & PCI path, which you may soon find useful as you progress in your hackintosh journey.
+
+### Keyboard and Trackpad Connection Type [#keyboard-trackpad-connection-type-ocsysinfo]
+
+<Accordions>
+    <Accordion title='SMBus Trackpad'>
+        ![OCSysInfo](/find-hardware/ocsysinfo/keyboard-smbus.png)
+
+        Trackpad: `SMBus` \
+        Keyboard: `PS/2`
+
+        <span className='text-xs'>Credit for providing image: [ThatCopy](https://github.com/ThatCopy)</span>
+    </Accordion>
+    <Accordion title='I2C Trackpad'>
+        ![OCSysInfo](/find-hardware/ocsysinfo/keyboard-i2c.png)
+
+        Trackpad: `I2C` \
+        Keyboard: `PS/2`
+
+        <span className='text-xs'>Credit for providing image: [Mahas](https://github.com/Mahas1)</span>
+    </Accordion>
+    <Accordion title='PS/2 TrackPad'>
+        ![OCSysInfo](/find-hardware/ocsysinfo/keyboard-ps2.png)
+
+        Trackpad: `PS/2` \
+        Keyboard: `PS/2`
+
+        <span className='text-xs'>Credit for providing image: [Tasty0](https://github.com/Tasty0)</span>
+    </Accordion>
+
+</Accordions>
+
+### Audio Codec [#audio-codec-ocsysinfo]
+
+![OCSysInfo](/find-hardware/ocsysinfo/audio.png)
+
+### Network Controller Models [#network-controller-models-ocsysinfo]
+
+![OCSysInfo](/find-hardware/ocsysinfo/network.png)
+
+### Drive Model [#drive-model-ocsysinfo]
+
+![OCSysInfo](/find-hardware/ocsysinfo/drive.png)

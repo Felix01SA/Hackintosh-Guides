@@ -1,0 +1,195 @@
+---
+title: Criando o instalador no macOS
+description: Criando o instalador do macOS no macOS.
+icon: FaApple
+---
+
+Embora você não precise de uma instalação nova do macOS para usar o OpenCore, alguns usuários preferem ter um ambiente limpo ao atualizar seus gerenciadores de inicialização.
+
+Para começar, vamos obter uma cópia do macOS. Você pode pular esta etapa e ir direto para a formatação do USB se estiver apenas criando um pendrive inicializável do OpenCore e não um instalador. Para todos os outros, você pode baixar o macOS da App Store ou com o script do Munki.
+
+## Baixando o macOS: SO Moderno [#downloading-macos-modern]
+
+Este método permite baixar o macOS 10.13 e mais recente. Para 10.12 e mais antigo, veja [Baixando macOS: SO Legado](#downloading-macos-legacy).
+
+<Callout title="Nota para macOS 12 e superior">
+  Como as versões recentes do macOS introduzem mudanças na pilha USB, é
+  altamente recomendável que você mapeie as portas USB (com USBToolBox) antes de
+  instalar o macOS.
+  <Callout type="warn">
+    Com macOS 11.3 e mais recente, [XhciPortLimit está quebrado resultando em
+    loops de inicialização](https://github.com/dortania/bugtracker/issues/162).
+    \ Se você já [mapeou suas portas USB](){/*TODO: Add link*/} e desativou
+    `XhciPortLimit`, você pode iniciar o macOS 11.3+ sem problemas.
+  </Callout>
+</Callout>
+
+De uma máquina macOS que atenda aos requisitos da versão do SO que você deseja instalar, vá diretamente para a App Store:
+
+- [Usando a App Store](#using-app-store)
+
+Para máquinas que precisam de versões específicas do SO ou não podem baixar da App Store:
+
+- [Utilitário de Atualização de Software via Linha de Comando](#command-line-software-update-utility)
+- [Utilitário InstallInstallMacOS do Munki](#installinstallmacos-utility)
+
+### Usando a App Store [#using-app-store]
+
+De uma máquina macOS que atenda aos requisitos da versão do SO que você deseja instalar, vá diretamente à App Store e baixe a versão desejada do SO e continue para [Configurando o instalador](#setting-installer)
+
+### Utilitário de Atualização de Software via Linha de Comando [#command-line-software-update-utility]
+
+Abra uma janela do terminal e copie e cole o comando abaixo:
+
+```sh title="Terminal"
+softwareupdate --list-full-installers; echo; echo "Por favor, digite o número da versão que deseja baixar:"; read REPLY; [ -n "$REPLY" ] && softwareupdate --fetch-full-installer --full-installer-version "$REPLY"
+```
+
+Isso fornecerá uma lista de versões disponíveis para escolha. Após o download, será salvo na sua pasta Aplicativos. Você pode continuar para [Configurando o instalador](#setting-installer).
+
+### Utilitário InstallInstallMacOS do Munki [#installinstallmacos-utility]
+
+<Callout title="Nota para usuários do macOS Monterey 12.3 ou superior">
+  A partir do macOS Monterey 12.3, a Apple removeu o suporte para `python2.7`, então o `installinstallmacos.py` apresentará o seguinte erro:
+
+```plaintext
+This tool requires the Python xattr module. Perhaps run 'pip install xattr' to install it.
+```
+
+Para resolver o problema, recomendamos instalar as `Command Line Tools for Xcode` executando `xcode-select --install{:sh}` no Terminal e depois executar `pip3 install xattr{:sh}`
+
+Depois disso, você pode executar o mesmo comando abaixo, mas com `python3` em vez de apenas `python`:
+
+```sh title="Terminal"
+mkdir -p ~/macOS-installer && cd ~/macOS-installer && curl https://raw.githubusercontent.com/munki/macadmin-scripts/main/installinstallmacos.py > installinstallmacos.py && sudo python3 installinstallmacos.py
+```
+
+</Callout>
+
+Para executá-lo, basta copiar e colar o comando abaixo em uma janela do terminal:
+
+```sh title="Terminal"
+mkdir -p ~/macOS-installer && cd ~/macOS-installer && curl https://raw.githubusercontent.com/munki/macadmin-scripts/main/installinstallmacos.py > installinstallmacos.py && sudo python installinstallmacos.py
+```
+
+![Munki's InstallInstallMacOS utility](/usb-creation/creating-usb/munki.macos.png)
+
+Como você pode ver, obtemos uma boa lista de instaladores do macOS. Se você precisar de uma versão específica do macOS, pode selecioná-la digitando o número ao lado dela. Para este exemplo, escolheremos 10:
+
+![Munki's InstallInstallMacOS utility - process](/usb-creation/creating-usb/munki-process.macos.png)
+
+Isso vai demorar um pouco, pois estamos baixando o instalador completo do macOS de 8GB+, então é altamente recomendável ler o resto do guia enquanto espera.
+
+Quando terminar, você encontrará na sua pasta `~/macOS-installer/` uma `DMG` contendo o Instalador do macOS, chamada `Install_macOS_<version>.dmg` . Monte-a e você encontrará o aplicativo instalador.
+
+<Callout>
+  Recomendamos mover o install macOS.app para a pasta `/Applications`, pois
+  executaremos comandos a partir dela.
+</Callout>
+<Callout>
+  Pressionar `Cmd+Shift+G` no Finder permitirá que você vá facilmente para
+  `~/macOS-installer`
+</Callout>
+
+![Munki's InstallInstallMacOS utility - done](/usb-creation/creating-usb/munki-done.macos.png)
+![Munki's InstallInstallMacOS utility - dmg](/usb-creation/creating-usb/munki-dmg.macos.png)
+
+A partir daqui, vá para [Configurando o instalador](#setting-installer) para finalizar seu trabalho. Se você quiser verificar a integridade do seu download, pode consultar este [repositório de checksums](https://github.com/notpeter/apple-installer-checksums), embora observe que esses são checksums colaborativos e podem não ser uma maneira confiável de verificar a autenticidade.
+
+## Baixando macOS: SO Legado [#downloading-macos-legacy]
+
+Este método permite baixar versões muito mais antigas do OS X, atualmente suportando todas as versões Intel do OS X (10.4 até a atual).
+
+- [macOS Legado: Método Offline](/guides/usb-creation/legacy-macos/legacy-macos-offline)
+  - 10.7 - 10.12 suportado, excluindo 10.9
+- [macOS Legado: Método Online](/guides/usb-creation/legacy-macos/legacy-macos-online)
+  - 10.7 - 11 suportado
+- [macOS Legado: Imagens de Disco](/guides/usb-creation/legacy-macos/legacy-macos-disk)
+  - 10.4 - 10.6 suportado
+
+## Configurando o instalador [#setting-installer]
+
+Agora vamos formatar o USB para preparar tanto para o instalador do macOS quanto para o OpenCore. Vamos usar macOS Extended (HFS+) com um mapa de partição GUID. Isso criará duas partições: a principal `MyVolume` e uma segunda chamada `EFI` que é usada como partição de inicialização onde seu firmware procurará os arquivos de boot.
+
+<Callout>
+  A partição `EFI` criada pela formatação do USB fica oculta até você montá-la.
+  Ela será montada mais tarde ao [Configurar o ambiente EFI do
+  OpenCore](#setting-oc-env)
+</Callout>
+<Callout>
+  Por padrão, o Utilitário de Disco mostra apenas partições - pressione
+  `Cmd/Win+2` para mostrar todos os dispositivos (alternativamente, você pode
+  pressionar o botão Visualizar)
+</Callout>
+<Callout>
+  Usuários seguindo a seção [macOS Legado: Método
+  Online]('/guides/usb-creation/legacy-macos/legacy-mecos-online) podem pular
+  para [Configurando o ambiente EFI do OpenCore](#setting-oc-env)
+</Callout>
+
+![Disk Utility - Erase Disk](/usb-creation/creating-usb/erase-disk.macos.png)
+
+Em seguida, execute o comando `createinstallmedia` fornecido pela [Apple](https://support.apple.com/en-us/HT201372):
+
+<Callout>O comando é feito para USBs formatados com o nome `MyVolume`</Callout>
+
+```sh title="Terminal"
+# substitua <version> pela versão do macOS
+sudo /Applications/Install\ macOS\ <version>.app/Contents/Resources/createinstallmedia --volume /Volumes/MyVolume
+```
+
+<Callout title='Nota para usuários do Apple Silicon que instalam macOS mais antigo que o Big Sur (11.x)'>
+  Se o `createinstallmedia` falhar com `zsh: killed` ou `Killed: 9`, provavelmente é um problema com a assinatura de código do instalador. Para corrigir isso, você pode executar o seguinte comando:
+
+```sh title="Terminal"
+# substitua <version> pela versão do macOS
+cd /Applications/Install\ macOS\ <version>.app/Contents/Resources/
+codesign -s - -f --deep /Applications/Install\ macOS\ <version>.app
+```
+
+Você precisará das ferramentas de linha de comando do Xcode instaladas:
+
+```sh title="Terminal"
+xcode-select --install
+```
+
+</Callout>
+
+Isso vai levar algum tempo, então você pode querer pegar um café ou continuar lendo o guia (para ser justo, você realmente não deveria estar seguindo este guia passo a passo sem ler tudo primeiro).
+
+Você também pode substituir o caminho do createinstallmedia pelo local onde seu instalador está (mesma ideia com o nome do drive).
+
+### Configuração Legada [#legacy-setup]
+
+Para sistemas que não suportam inicialização UEFI, veja abaixo:
+
+Para começar, você precisa do seguinte:
+
+- `BootInstall_IA32.tool` ou `BootInstall_X64.tool`
+  <Callout>
+    Isso pode ser encontrado no OpenCorePkg em `/Utilities/LegacyBoot/`
+  </Callout>
+- USB de instalação (criado acima)
+
+Dentro da sua pasta de compilação do OpenCore, navegue até `Utilities/LegacyBoot`. Aqui você encontrará um arquivo chamado `BootInstall_<arch>.tool`. O que isso faz é instalar o DuetPkg no seu drive desejado.
+
+![BootInstall.tool](/usb-creation/creating-usb/legacy-setup-bootinstall.macos.png)
+
+Agora execute esta ferramenta no terminal com sudo (esta ferramenta provavelmente falhará caso contrário):
+
+```sh title="Terminal"
+# Substitua <arch> pela arquitetura do seu CPU: X64 ou IA32
+sudo ~/Downloads/OpenCore/Utilities/legacyBoot/BootInstall_<arch>.tool
+```
+
+![BootInstall.tool - process](/usb-creation/creating-usb/legacy-setup-boot-disk.macos.png)
+
+Isso fornecerá uma lista de discos disponíveis, escolha o seu e você será solicitado a escrever um novo MBR. Escolha sim `[y]` e você terá terminado.
+
+## Configurando o ambiente EFI do OpenCore [#setting-oc-env]
+
+Configurar o ambiente EFI do OpenCore é simples – tudo que você precisa fazer é montar nossa partição de sistema EFI. Isso é feito automaticamente quando formatamos com GUID, mas está desmontado por padrão, é aqui que nosso amigo [MountEFI](https://github.com/corpnewt/MountEFI) entra em ação:
+
+![MountEFI](/usb-creation/creating-usb/oc-env-mount-efi-usb.macos.png)
+
+Você notará que quando abrimos a partição EFI, ela está vazia. É aqui que a diversão começa.

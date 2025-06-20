@@ -1,0 +1,37 @@
+---
+title: Creating the USB
+description: Creating the USB is a process that requires a few steps to be done.
+---
+
+## Requirements
+
+- [OpenCorePkg](https://github.com/acidanthera/OpenCorePkg/releases), highly recommended running the debug version to show more info.
+- [ProperTree](https://github.com/corpnewt/ProperTree) to edit `.plist` files (OpenCore Configurator is another tool but is heavily outdated and the Mackie version is known for corruption. **Please avoid these kinds of tools at all costs!**).
+- You must remove Clover from your system entirely if you wish to use OpenCore as your main bootloader. Keep a backup of clover based EFI. See here on what needs to be cleaned: [Clover Conversion](){/* TODO: Add link */}
+
+## Online vs Offline Installer [#online-vs-offline-installer]
+
+Offline installer have a complete copy of macOS, while online installers are only recovery image (~500MB) which then download macOS from Apple servers once booted.
+
+- Offline
+  - Can only be made in macOS.
+  - Windows/Linux do not have the APFS/HFS drivers needed to assemble a full installer.
+- Online
+  - Can be made in macOS/Linux/Windows.
+  - Requires a working internet connection cia a macOS supported network adapter on the target machine.
+
+## Making the Installer [#making-the-installer]
+
+Depending on which OS you're on see your specific section on making the USB:
+
+- [macOS users](/guides/usb-creation/macos)
+  - Supports OS X 10.4 to current
+  - Supports both legacy and UEFI installs
+- [Windows users](/guides/usb-creation/windows)
+  - Supports OS X 10.7 to current
+  - Online installer only
+  - Supports both legacy and UEFI installs
+- [Linux users (UEFI)](/guides/usb-creation/linux)
+  - Supports OS X 10.7 to current
+  - Online installer only
+  - Meant for machines supporting UEFI Boot
